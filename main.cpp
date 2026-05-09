@@ -4,11 +4,11 @@
 
 int main()
 {
-    InitWindow(1800, 900, "hello world");
+    InitWindow(800, 450, "hello world");
     SetTargetFPS(60);
 
     Player player({ GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f });
-    World world;
+    World world{};
 
     Camera2D cam = { 0 };
     cam.target = { player.position.x, player.position.y - 30.0f};
@@ -27,9 +27,11 @@ int main()
 
         BeginDrawing();
             ClearBackground(SKYBLUE);
+            DrawFPS(10, 10);
                 BeginMode2D(cam);
 
-                player.update(deltaTime);
+
+                player.update(deltaTime, world);
                 world.update(worldMousePos);
 
             EndMode2D();
