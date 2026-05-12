@@ -11,17 +11,7 @@ void Player::jump(float& deltaTime)
 		velocity.y = -jumpForce;
 	}
 
-	if (!isGrounded)
-	{
-		if (position.y >= (GetScreenHeight() / 2))
-		{
-			position.y = GetScreenHeight() / 2;
-			isGrounded = true;
-		}
-
-		velocity.y += gravity * deltaTime;
-		position.y += velocity.y * deltaTime;
-	}
+	if (!isGrounded) velocity.y += gravity * deltaTime;
 }
 
 void Player::move(float& deltaTime)
@@ -36,7 +26,43 @@ void Player::move(float& deltaTime)
 
 void Player::update(float& deltaTime, World& world)
 {
-	jump(deltaTime);
 	move(deltaTime);
+	playerRect = { position.x, position.y, 20, 40 };
+
+	for (Vector2 block : world.placedBlocks)
+	{
+		Rectangle blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+
+		if (CheckCollisionRecs(playerRect, blockRect))
+		{
+			if (velocity.x > 0) position.x = blockRect.x - playerRect.width;
+			else if (velocity.x < 0) position.x = blockRect.x + blockRect.width;
+		}
+	}
+
+	jump(deltaTime);
+	position.y += velocity.y * deltaTime;
+	isGrounded = false;
+
+	playerRect = { position.x, position.y, 20, 40 };
+
+	for (Vector2 block : world.placedBlocks)
+	{
+		Rectangle blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+
+		if (CheckCollisionRecs(playerRect, blockRect))
+		{
+			if (velocity.y > 0)
+			{
+				isGrounded = true;
+				position.y = blockRect.y - playerRect.height;
+				velocity.y = 0;
+			}
+			else if (velocity.y < 0)
+			{
+				position.y = blockRect.y + blockRect.height;
+			}
+		}
+	}
 	DrawRectangle(position.x, position.y, 20, 40, WHITE);
 }

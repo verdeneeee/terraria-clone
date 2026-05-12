@@ -11,7 +11,7 @@ struct World
 
 	void drawWorld();
 	void generateTerrain(int width, int height);
-	void placeBlock(Vector2 &mousePos);
-	void destroyBlock(Vector2& mousePos);
-	void update(Vector2& mousePos);
+	void placeBlock(Vector2 &mousePos, Camera2D cam);
+	void destroyBlock(Vector2& mousePos, Camera2D cam);
+	void update(Vector2& mousePos, Camera2D cam);
 };

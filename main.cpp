@@ -21,7 +21,6 @@ int main()
     {
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
-        Vector2 worldMousePos = GetScreenToWorld2D(mousePos, cam);
 
         cam.target = { player.position.x, player.position.y - 30.0f };
 
@@ -32,7 +31,7 @@ int main()
 
 
                 player.update(deltaTime, world);
-                world.update(worldMousePos);
+                world.update(mousePos, cam);
 
             EndMode2D();
         EndDrawing();
