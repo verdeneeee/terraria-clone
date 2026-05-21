@@ -1,13 +1,14 @@
 #pragma once
 #include "../raylib/include/raylib.h"
 #include <vector>
+#include "entity.h"
 
 struct World
 {
 	World();
 
 	std::vector<Vector2> placedBlocks;
-	float cellSize = 20.0f;
+	float cellisze = 20.0f;
 
 	void drawWorld();
 	void generateTerrain(int width, int height);

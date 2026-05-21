@@ -1,91 +1,84 @@
-#include "player.h"
 #include "../raylib/include/raylib.h"
+#include "entity.h"
+#include "world.h"
+#include "player.h"	
 
-Player::Player(Vector2 startPos) {}
+/**
+struct Enemy {
+    List<Component> components;
+ 
+    components.add(Position);
+    components.add(Gravity);
+ 
+    for (Component c : this.components) {
+       ....
+    }
 
-void World::placeBlock(Vector2& mousePos, Camera2D cam)
-{
-	if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-	{
-		float gridX = (int)(GetScreenToWorld2D(mousePos, cam).x / cellSize) * cellSize;
-		float gridY = (int)(GetScreenToWorld2D(mousePos, cam).y / cellSize) * cellSize;
-
-		placedBlocks.push_back({ gridX, gridY - 30.0f });
-	}
+    for (Enemy e : enemies) {
+        (e.component.get()).attack();
+    }
 }
+ 
+*/
 
-void World::destroyBlock(Vector2& mousePos, Camera2D cam)
+void updatePlayer(EntityID id, Components& c, World& world, float deltaTime)
 {
-	if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
-	{
-		for (int i = 0; i < placedBlocks.size(); i++)
-		{
-			if (CheckCollisionPointRec(GetScreenToWorld2D(mousePos, cam), { placedBlocks[i].x, placedBlocks[i].y + 30, cellSize, cellSize }))
-			{
-				placedBlocks.erase(placedBlocks.begin() + i);
-				break;
-			}
-		}
-	}
-}
+    auto& position = c.positions[id].position;
+    auto& velocity = c.velocities[id].velocity;
+    auto& gravity = c.gravities[id].gravity;
+    auto& IsGrounded = c.isGroundeds[id].isGrounded;
+    auto& size = c.playerSizes[id];
+    auto& maxSpeed = c.maxSpeeds[id].speed;
+    auto& jumpForce = c.jumpForces[id].force;
 
-void Player::jump(float& deltaTime)
-{	
-	if(IsKeyDown(KEY_SPACE) && isGrounded) velocity.y = -jumpForce;
+    velocity.x = 0;
 
-	position.y += velocity.y * deltaTime;
-	if (!isGrounded) velocity.y += gravity * deltaTime;
-}
+    if (IsKeyDown(KEY_D)) velocity.x = maxSpeed;
+    if (IsKeyDown(KEY_A)) velocity.x = -maxSpeed;
 
-void Player::move(float& deltaTime)
-{
-	velocity.x = 0;
+    position.x += velocity.x * deltaTime;
 
-	if (IsKeyDown(KEY_D)) velocity.x = maxSpeed;
-	if (IsKeyDown(KEY_A)) velocity.x = -maxSpeed;
+    Rectangle playerRect = { position.x, position.y, size.width, size.height};
 
-	position.x += velocity.x * deltaTime;
-}
+    for (Vector2 block : world.placedBlocks)
+    {
+        Rectangle blockRect = { block.x, block.y + 30, world.cellisze, world.cellisze };
 
-void Player::update(float& deltaTime, World& world)
-{
-	move(deltaTime);
-	playerRect = { position.x, position.y, 20, 40 };
+        if (CheckCollisionRecs(playerRect, blockRect))
+        {
+            if (velocity.x > 0) position.x = blockRect.x - playerRect.width;
+            else if (velocity.x < 0) position.x = blockRect.x + blockRect.width;
+        }
+    }
 
-	for (Vector2 block : world.placedBlocks)
-	{
-		blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+    if (IsKeyDown(KEY_SPACE) && IsGrounded) velocity.y = -jumpForce;
 
-		if (CheckCollisionRecs(playerRect, blockRect))
-		{
-			if (velocity.x > 0) position.x = blockRect.x - playerRect.width;
-			else if (velocity.x < 0) position.x = blockRect.x + blockRect.width;
-		}
-	}
+    position.y += velocity.y * deltaTime;
+    if (!IsGrounded) velocity.y += gravity * deltaTime;
 
-	jump(deltaTime);
-	isGrounded = false;
+    IsGrounded = false;
 
-	playerRect = { position.x, position.y, 20, 40 };
+    playerRect = { position.x, position.y, size.width, size.height };
 
-	for (Vector2 block : world.placedBlocks)
-	{
-		blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+    for (Vector2 block : world.placedBlocks)
+    {
+        Rectangle blockRect = { block.x, block.y + 30.0f, world.cellisze, world.cellisze };
 
-		if (CheckCollisionRecs(playerRect, blockRect))
-		{
-			if (velocity.y > 0)
-			{
-				isGrounded = true;
-				position.y = blockRect.y - playerRect.height;
-				velocity.y = 0;
-			}
-			else if (velocity.y < 0)
-			{
-				position.y = blockRect.y + blockRect.height;
-			}
-		}
-	}
+        if (CheckCollisionRecs(playerRect, blockRect))
+        {
+            if (velocity.y > 0)
+            {
+                IsGrounded = true;
+                position.y = blockRect.y - playerRect.height;
+                velocity.y = 0;
+            }
+            else if (velocity.y < 0)
+            {
+                position.y = blockRect.y + blockRect.height;
+                velocity.y = 0;
+            }
+        }
+    }
 
-	DrawRectangle(position.x, position.y, 20, 40, WHITE);
+    DrawRectangle(position.x, position.y, size.width, size.height, WHITE);
 }
