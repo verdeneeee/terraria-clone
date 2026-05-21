@@ -3,7 +3,7 @@
 #include "src/world.h"
 #include "src/entity.h"
 
-void updatePlayer(EntityID id, Components& c, World& world, float deltaTime); //как оно работает
+void updatePlayer(EntityID id, Components& c, World& world, float deltaTime);
 
 int main()
 {
