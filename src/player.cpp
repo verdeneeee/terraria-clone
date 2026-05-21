@@ -3,24 +3,6 @@
 #include "world.h"
 #include "player.h"	
 
-/**
-struct Enemy {
-    List<Component> components;
- 
-    components.add(Position);
-    components.add(Gravity);
- 
-    for (Component c : this.components) {
-       ....
-    }
-
-    for (Enemy e : enemies) {
-        (e.component.get()).attack();
-    }
-}
- 
-*/
-
 void updatePlayer(EntityID id, Components& c, World& world, float deltaTime)
 {
     auto& position = c.positions[id].position;
